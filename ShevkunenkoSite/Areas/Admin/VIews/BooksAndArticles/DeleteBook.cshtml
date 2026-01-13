@@ -1,0 +1,168 @@
+﻿@model BooksAndArticlesModel
+
+<h1 class="@(Model.TypeOfText.Contains("book") ? "fs-3 text_shadow" : "d-none")">Удалить инфо о книге</h1>
+<h1 class="@(Model.TypeOfText.Contains("article") ? "fs-3 text_shadow" : "d-none")">Удалить инфо о статье</h1>
+
+<hr class="liniya" />
+
+@* Показ всех ошибок ввода данных *@
+@if (Context.Request.Method == "POST")
+{
+    <div asp-validation-summary="All" class="fs-6 text-danger border border-top-0 border-danger mb-3"></div>
+}
+
+<div class="card w-100 mx-auto p-2">
+
+    <div class="col-12 card-body mx-auto mb-2">
+
+        @* Удалить - отменить *@
+        <div class="card-footer p-0 my-2">
+
+            <form method="post"
+                  asp-area="Admin"
+                  asp-controller="BooksAndArticles"
+                  asp-action="DeleteBook"
+                  asp-route-textid="@Model.BooksAndArticlesModelId" class="mt-2">
+
+                <input asp-for="@Model.BooksAndArticlesModelId" type="hidden" />
+                <input asp-for="@Model.TypeOfText" type="hidden" />
+                <input asp-for="@Model.AuthorOfText" type="hidden" />
+                <input asp-for="@Model.CaptionOfText" type="hidden" />
+                <input asp-for="@Model.BookDescription" type="hidden" />
+                <input asp-for="@Model.NumberOfPages" type="hidden" />
+
+                <div class="card-footer p-2">
+
+                    <button type="submit" class="btn btn-outline-danger me-2 shadw" title="удалить книгу (статью)">Удалить</button>
+
+                    @* Список книг и статей сайта *@
+                    <a class="btn btn-outline-primary py-1 m-2 shadw"
+                       asp-area="Admin"
+                       asp-controller="BooksAndArticles"
+                       asp-action="Index"
+                       title="список книг и статей">
+                        Отменить
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        @* Тип текста *@
+        <div>
+
+            <label asp-for="TypeOfText" class="col-form-label text-primary fs-5 me-2"></label>
+
+            <p class="fs-4 text-center text_shadow">@Model.TypeOfText</p>
+
+            <div class="form-text">
+                <span class="d-none d-sm-inline-block fs-6 text-success">тег «TypeOfText» - </span>
+                <span class="fs-6 text-success">тип текста</span>
+            </div>
+
+            <hr class="w-75 mx-auto" />
+
+        </div>
+
+        @* Автор книги или статьи *@
+        <div>
+
+            <label asp-for="AuthorOfText" class="col-form-label text-primary fs-5 me-2"></label>
+
+            <p class="fs-4 text-center text_shadow">@Model.AuthorOfText</p>
+
+            <div class="form-text">
+                <span class="d-none d-sm-inline-block fs-6 text-success">тег «AuthorOfText» - </span>
+                <span class="fs-6 text-success">автор текста</span>
+            </div>
+
+            <hr class="w-75 mx-auto" />
+
+        </div>
+
+        @* Название книги или статьи *@
+        <div>
+
+            <label asp-for="CaptionOfText" class="col-form-label text-primary fs-5 me-2"></label>
+
+            <p class="fs-4 text-center text_shadow">@Model.CaptionOfText</p>
+
+            <div class="form-text">
+                <span class="d-none d-sm-inline-block fs-6 text-success">тег «CaptionOfText» - </span>
+                <span class="fs-6 text-success">название книги (статьи)</span>
+            </div>
+
+            <hr class="w-75 mx-auto" />
+
+        </div>
+
+        @* Описание книги или статьи *@
+        <div>
+
+            <label asp-for="BookDescription" class="col-form-label text-primary fs-5 me-2"></label>
+
+            <textarea class="form-control fordetails fs-5 text_shadow"
+                      asp-for="BookDescription"
+                      readonly
+                      rows="2"
+                      aria-describedby="TextDescriptionInputHelpBlock">
+                 </textarea>
+
+            <div class="form-text">
+                <span class="d-none d-sm-inline-block fs-6 text-success">тег «BookDescription» - </span>
+                <span class="fs-6 text-success">описание книги (статьи)</span>
+            </div>
+
+            <hr class="w-75 mx-auto" />
+
+        </div>
+
+        @* Колличество страниц *@
+        <div>
+
+            <label asp-for="NumberOfPages" class="col-form-label text-primary fs-5 me-2"></label>
+
+            <p class="fs-4 text-center text_shadow">@Model.NumberOfPages</p>
+
+            <div class="form-text">
+                <span class="d-none d-sm-inline-block fs-6 text-success">тег «NumberOfPages» - </span>
+                <span class="fs-6 text-success">колличество страниц</span>
+            </div>
+
+        </div>
+
+        @* Удалить - отменить *@
+        <div class="card-footer p-0 my-2">
+
+            <form method="post"
+                  asp-area="Admin"
+                  asp-controller="BooksAndArticles"
+                  asp-action="DeleteBook"
+                  asp-route-textid="@Model.BooksAndArticlesModelId" class="mt-2">
+
+                <input asp-for="@Model.BooksAndArticlesModelId" type="hidden" />
+
+                <div class="card-footer p-2">
+
+                    <button type="submit" class="btn btn-outline-danger me-2 shadw" title="удалить книгу (статью)">Удалить</button>
+
+                    @* Список книг и статей сайта *@
+                    <a class="btn btn-outline-primary py-1 m-2 shadw"
+                       asp-area="Admin"
+                       asp-controller="BooksAndArticles"
+                       asp-action="Index"
+                       title="список книг и статей">
+                        Отменить
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

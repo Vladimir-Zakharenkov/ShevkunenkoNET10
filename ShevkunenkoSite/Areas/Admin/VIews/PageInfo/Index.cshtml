@@ -1,0 +1,211 @@
+﻿@model ItemsListViewModel
+
+@* Значение строки поиска *@
+<div>
+
+	@if (!String.IsNullOrEmpty(Model.SearchString))
+	{
+		<div class="row mb-0">
+
+			<p class="col-12 fs-5 text-primary">
+				Поиск по строке: <span class="text-black text_shadow">@Model.SearchString</span>
+			</p>
+
+		</div>
+	}
+</div>
+
+@* Сообщение о количестве страниц *@
+<div>
+
+	@if (Model.TotalItems == 0)
+	{
+		<div class="row">
+
+			<div class="col text-center p-2">
+
+				<p class="fs-5 text_shadow mb-0">
+					В базе данных нет страниц
+				</p>
+
+			</div>
+
+		</div>
+	}
+	else
+	{
+		<div class="row">
+
+			<div class="col-12 text-center">
+
+				<p class="fs-5 text-primary mb-0">
+					Количество страниц :&nbsp;
+					<span class="text-black text_shadow">
+						@Model.TotalItems
+					</span>
+				</p>
+
+			</div>
+
+		</div>
+	}
+
+	<hr class="liniya" />
+
+</div>
+
+@* Добавить страницу - Иконки страниц - Поиск страницы *@
+<div class="row">
+
+	@* Добавить страницу - Иконки страниц *@
+	<div class="col-12 col-md-6 col-lg-4">
+
+		@* Добавить страницу *@
+		<a asp-area="Admin"
+		   asp-controller="PageInfo"
+		   asp-action="AddPage"
+		   class="btn btn-outline-danger shadw py-1 mt-2 me-3 minwidth100px"
+		   title="добавить страницу">
+
+			Добавить
+
+		</a>
+
+		@* Иконки страниц *@
+		<a asp-area="Admin"
+		   asp-controller="PageInfo"
+		   asp-action="Index"
+		   asp-route-searchString="@Model.SearchString"
+		   asp-route-pageCard="true"
+		   class="btn btn-outline-primary shadw py-1 mt-2 minwidth100px"
+		   title="карточки страниц">
+
+			Иконки
+
+		</a>
+
+	</div>
+
+	<hr class="col-12 w-75 mt-3 d-md-none mx-auto" />
+
+	@* Поиск страницы *@
+	<div class="col-12 col-md-6 col-lg-8 mb-2">
+
+		<form method="get"
+			  asp-area="Admin"
+			  asp-controller="PageInfo"
+			  asp-action="Index"
+			  asp-route-pageCard="false"
+			  class="text-center text-md-end mt-md-2">
+
+			<input asp-for="SearchString"
+				   class="d-inline-block align-middle mt-1 w-50"
+				   type="text" />
+
+			<input class="btn btn-outline-success shadw py-1 me-md-3"
+				   type="submit"
+				   value="Поиск"
+				   title="поиск страницы" />
+
+		</form>
+
+	</div>
+
+	<hr class="liniya" />
+
+</div>
+
+@* Таблица данных *@
+<div class="row">
+
+	<div class="col m-1 shadw">
+
+		<div class="table-responsive">
+
+			<table class="table table-sm table-hover caption-top align-middle">
+
+				<thead>
+
+					<tr class="d-flex table-secondary text-center">
+
+						<th scope="col" class="col-9 col-lg-10 col-xl-5 align-content-center text-primary">Заголовок</th>
+						<th scope="col" class="d-none d-xl-table-cell col-xl-5 text-start text-primary">Адрес</th>
+						<th scope="col" class="col-3 col-lg-2 align-content-center text-center"></th>
+
+					</tr>
+
+				</thead>
+
+				<tbody>
+
+					@foreach (var pageInfo in Model.AllSitePages ?? Enumerable.Empty<PageInfoModel>())
+					{
+						<tr class="d-flex text-start">
+
+							<td scope="col" class="col-9 col-lg-10 col-xl-5 align-content-center text-start text_shadow">@pageInfo.PageTitle</td>
+							<td scope="col" class="d-none d-xl-table-cell col-xl-5 align-content-center text-start text_shadow">@pageInfo.PageFullPathWithData</td>
+
+							@* Кнопки Информация - Изменить - Удалить - Смотреть*@
+							<td scope="col" class="col-3 col-lg-2 align-content-center text-center">
+
+								<a asp-area="Admin"
+								   asp-controller="PageInfo"
+								   asp-action="DetailsPage"
+								   asp-route-pageId="@pageInfo.PageInfoModelId"
+								   class="btn btn-outline-info px-1 py-0 m-1 shadw minwidth40px"
+								   title="подробно">
+
+									Info
+
+								</a>
+
+								<a asp-area="Admin"
+								   asp-controller="PageInfo"
+								   asp-action="EditPage"
+								   asp-route-pageId="@pageInfo.PageInfoModelId"
+								   class="btn btn-outline-dark px-1 py-0 m-1 shadw minwidth40px"
+								   title="редактировать">
+
+									Edit
+
+								</a>
+
+								<a href="@Url.Content(pageInfo.PageFullPathWithData)"
+								   class="btn btn-outline-primary px-1 py-0 m-1 shadw minwidth40px"
+								   title="просмотр">
+
+									Run
+
+								</a>
+
+								<a asp-area="Admin"
+								   asp-controller="PageInfo"
+								   asp-action="DeletePage"
+								   asp-route-pageId="@pageInfo.PageInfoModelId"
+								   class="btn btn-outline-danger px-1 py-0 m-1 shadw minwidth40px"
+								   title="удалить">
+
+									Del
+
+								</a>
+
+							</td>
+
+						</tr>
+					}
+
+				</tbody>
+
+			</table>
+
+		</div>
+
+	</div>
+
+</div>
+
+@* Разбивка на страницы *@
+@if (Model.TotalItems > DataConfig.NumberOfItemsPerPage)
+{
+	<div pagination="@Model"></div>
+}

@@ -1,0 +1,194 @@
+﻿@model ItemsListViewModel
+
+@* Значение строки поиска *@
+<div>
+
+	@if (!String.IsNullOrEmpty(Model.SearchString))
+	{
+		<div class="row mb-0">
+			<p class="col-12 fs-5 text-primary">
+				Поиск по строке: <span class="text-black text_shadow">@Model.SearchString</span>
+			</p>
+		</div>
+	}
+
+</div>
+
+@* Количество картинок *@
+<div>
+
+	@if (Model.TotalItems == 0)
+	{
+		<div class="row">
+
+			<div class="col text-center p-2">
+
+				<p class="fs-5 text_shadow mb-0">
+					В базе данных нет картинок
+				</p>
+
+			</div>
+
+		</div>
+	}
+	else
+	{
+		<div class="row">
+
+			<div class="col-12 text-center mb-0">
+
+				<p class="fs-5 text-primary mb-0">
+					Количество изображений:&nbsp;
+					<span class="text-black text_shadow">
+						@Model.TotalItems
+					</span>
+				</p>
+
+			</div>
+
+		</div>
+	}
+
+	<hr class="liniya" />
+
+</div>
+
+@* Добавить картинку - Таблица - Поиск картинок *@
+<div class="row">
+
+	@* Добавить картинку - Таблица картинок *@
+	<div class="col-12 col-md-6 col-lg-4">
+
+		@* Добавить картинку *@
+		<a asp-area="Admin"
+		   asp-controller="ImageInfo"
+		   asp-action="AddImage"
+		   class="btn btn-outline-danger shadw py-1 mt-2 me-3 minwidth100px"
+		   title="добавить картинку">
+
+			Добавить
+
+		</a>
+
+		@* Иконки картинок *@
+		<a asp-area="Admin"
+		   asp-controller="ImageInfo"
+		   asp-action="Index"
+		   asp-route-searchString="@Model.SearchString"
+		   asp-route-pageCard="false"
+		   class="btn btn-outline-primary shadw py-1 mt-2 minwidth100px"
+		   title="таблица картинок">
+
+			Таблица
+
+		</a>
+
+	</div>
+
+	<hr class="col-12 w-75 mt-3 d-md-none mx-auto" />
+
+	@* Поиск картинок *@
+	<div class="col-12 col-md-6 col-lg-8 mb-2">
+
+		<form method="get"
+			  asp-area="Admin"
+			  asp-controller="ImageInfo"
+			  asp-action="Index"
+			  asp-route-pageCard="true"
+			  class="text-center text-md-end mt-md-2">
+
+			<input asp-for="PageCard" type="hidden" value="true" />
+
+			<input asp-for="SearchString"
+				   class="d-inline-block align-middle mt-1 w-50"
+				   type="text" />
+
+			<input class="btn btn-outline-success shadw py-1 me-md-3"
+				   type="submit"
+				   value="Поиск"
+				   title="поиск картинки" />
+
+		</form>
+
+	</div>
+
+	<hr class="liniya" />
+
+</div>
+
+@* Иконки картинок сайта *@
+<div class="row row-cols-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-7 row-cols-xxl-8 g-2 justify-content-center">
+
+	@foreach (var image in Model.AllImageFiles ?? Enumerable.Empty<ImageFileModel>())
+	{
+		<div class="col">
+
+			<div class="card h-100 me-1 m-1 p-1 pb-0 shadw borderforitem">
+
+				<a asp-area="Admin"
+				   asp-controller="ImageInfo"
+				   asp-action="DetailsImage"
+				   asp-route-imageid="@image.ImageFileModelId"
+				   title="иконка картинки">
+
+					<vc:view-image image-id="@image.ImageFileModelId"
+								   css-class="card-img-top shadw"
+								   icon-type="icon300" />
+
+				</a>
+
+				<div class="card-footer px-0 text-muted">
+
+					<hr class="liniya minwidth50px" />
+					
+					<div class="pt-2 minwidth50px mx-auto justify-content-center">
+
+						<a asp-area="Admin"
+						   asp-controller="ImageInfo"
+						   asp-action="DetailsImage"
+						   asp-route-imageId="@image.ImageFileModelId"
+						   class="btn btn-outline-info py-0 px-0 px-sm-2 ms-1 mb-1 shadw minwidth50px"
+						   title="инфо о картинке">
+
+							Info
+
+						</a>
+
+						<a asp-area="Admin"
+						   asp-controller="ImageInfo"
+						   asp-action="EditImage"
+						   asp-route-imageId="@image.ImageFileModelId"
+						   class="btn btn-outline-dark py-0 px-0 px-sm-2 ms-1 mb-1 shadw minwidth50px"
+						   title="редактировать">
+
+							Edit
+
+						</a>
+
+						<a asp-area="Admin"
+						   asp-controller="ImageInfo"
+						   asp-action="DeleteImage"
+						   asp-route-imageId="@image.ImageFileModelId"
+						   class="btn btn-outline-danger py-0 px-0 px-sm-2 ms-1 mb-1 shadw minwidth50px"
+						   title="удалить">
+
+							Del
+
+						</a>
+
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+	}
+
+</div>
+
+@* Разбивка на страницы *@
+@if (Model.TotalItems > DataConfig.NumberOfItemsPerPage)
+{
+	<div pagination="@Model"></div>
+}

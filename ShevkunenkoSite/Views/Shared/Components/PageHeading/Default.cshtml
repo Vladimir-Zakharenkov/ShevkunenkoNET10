@@ -1,0 +1,15 @@
+﻿@model PageInfoModel
+
+@if (!string.IsNullOrEmpty(Model.PageHeading))
+{
+    <h1 class="mt-2 text_shadow">@Html.Raw(Model.PageHeading)</h1>
+}
+
+@if (Model.ImagePageHeadingId != null)
+{
+    <hr class="liniya" />
+
+    <vc:view-image image-id="@Model.ImagePageHeadingId.ToString()"
+                   css-class="mx-auto adp90_img maxwidth700px ten"
+                   icon-type="" />
+}

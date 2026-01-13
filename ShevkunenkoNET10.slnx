@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ShevkunenkoSite.Model/ShevkunenkoSite.Models.csproj" />
+  <Project Path="ShevkunenkoSite.Services/ShevkunenkoSite.Services.csproj" />
+  <Project Path="ShevkunenkoSite/ShevkunenkoSite.csproj" />
+</Solution>

@@ -1,0 +1,196 @@
+﻿@model ItemsListViewModel
+
+@* Значение строки поиска *@
+<div>
+
+	@if (!String.IsNullOrEmpty(Model.SearchString))
+	{
+		<div class="row mb-0">
+
+			<p class="col-12 fs-5 text-primary">
+				Поиск по строке: <span class="text-black text_shadow">@Model.SearchString</span>
+			</p>
+
+		</div>
+	}
+</div>
+
+@* Сообщение о количестве страниц *@
+<div>
+
+	@if (Model.TotalItems == 0)
+	{
+		<div class="row">
+
+			<div class="col text-center p-2">
+
+				<p class="fs-5 text_shadow mb-0">
+					В базе данных нет страниц
+				</p>
+
+			</div>
+
+		</div>
+	}
+	else
+	{
+		<div class="row">
+
+			<div class="col-12 text-center">
+
+				<p class="fs-5 text-primary mb-0">
+					Количество страниц :&nbsp;<span class="text-black text_shadow">@Model.TotalItems</span>
+				</p>
+
+			</div>
+
+		</div>
+	}
+
+	<hr class="liniya" />
+
+</div>
+
+@* Добавить страницу - Список страниц - Поиск страницы *@
+<div class="row">
+
+	<div class="col-12 col-md-6 col-lg-4">
+
+		<a asp-area="Admin"
+		   asp-controller="PageInfo"
+		   asp-action="AddPage"
+		   class="btn btn-outline-danger shadw py-1 mt-2 me-3 minwidth100px"
+		   title="добавить страницу">
+
+			Добавить
+
+		</a>
+
+		<a asp-area="Admin"
+		   asp-controller="PageInfo"
+		   asp-action="Index"
+		   asp-route-pageCard="false"
+		   class="btn btn-outline-primary shadw py-1 mt-2 minwidth100px"
+		   title="список страниц">
+
+			Список
+
+		</a>
+
+	</div>
+
+	<hr class="col-12 w-75 mt-3 d-md-none mx-auto" />
+
+	<div class="col-12 col-md-6 col-lg-8 mb-2">
+
+		<form method="get"
+			  asp-area="Admin"
+			  asp-controller="PageInfo"
+			  asp-action="Index"
+			  asp-route-pageCard="true"
+			  class="text-center text-md-end mt-md-2">
+
+			<input asp-for="PageCard" type="hidden" value="true" />
+
+			<input asp-for="SearchString"
+				   class="d-inline-block align-middle mt-1 w-50"
+				   type="text" />
+
+			<input class="btn btn-outline-success shadw py-1 me-md-3"
+				   type="submit"
+				   value="Поиск"
+				   title="поиск страницы" />
+
+		</form>
+
+	</div>
+
+	<hr class="liniya" />
+
+</div>
+
+@* Иконки страниц *@
+<div class="row row-cols-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-7 row-cols-xxl-8 g-2 justify-content-center">
+
+	@foreach (var pageInfo in Model.AllSitePages ?? Enumerable.Empty<PageInfoModel>())
+	{
+		<div class="col">
+
+			<div class="card h-100 me-1 mb-1 p-1 shadw borderforitem">
+
+				<vc:view-image image-id="@pageInfo.ImageFileModelId"
+							   css-class="card-img-top shadw rounded-3"
+							   icon-type="webicon300" />
+
+				<div class="card-body p-0 mt-2 shadw cardBodyBg">
+
+					@if (!string.IsNullOrEmpty(pageInfo.PageCardText))
+					{
+						<p class="card-title lh-1 fontadaptive my-1 mt-2">@pageInfo.PageCardText</p>
+					}
+					else
+					{
+						<p class="card-title lh-1 text-danger fontadaptive my-1 mt-2">текст не задан</p>
+					}
+
+				</div>
+
+				<div class="card-footer text-muted p-1">
+
+					<hr class="liniya" />
+
+					<a asp-area="Admin"
+					   asp-controller="PageInfo"
+					   asp-action="DetailsPage"
+					   asp-route-pageId="@pageInfo.PageInfoModelId"
+					   class="btn btn-outline-info py-0 px-2 mb-1 ms-1 shadw"
+					   title="подробно">
+
+						Info
+
+					</a>
+
+					<a asp-area="Admin"
+					   asp-controller="PageInfo"
+					   asp-action="EditPage"
+					   asp-route-pageId="@pageInfo.PageInfoModelId"
+					   class="btn btn-outline-dark py-0 px-2 mb-1 ms-1 shadw"
+					   title="редактировать">
+
+						Edit
+
+					</a>
+
+					<a href="@Url.Content(pageInfo.PageFullPathWithData)"
+					   class="btn btn-outline-primary py-0 px-2 mb-1 ms-1 shadw"
+					   title="просмотр">
+
+						Run
+
+					</a>
+
+					<a asp-area="Admin"
+					   asp-controller="PageInfo"
+					   asp-action="DeletePage"
+					   asp-route-pageId="@pageInfo.PageInfoModelId"
+					   class="btn btn-outline-danger py-0 px-2 mb-1 ms-1 shadw"
+					   title="удалить">
+
+						Del
+
+					</a>
+
+				</div>
+
+			</div>
+
+		</div>
+	}
+
+</div>
+
+@* Разбивка на страницы *@
+@if (Model.TotalItems > DataConfig.NumberOfItemsPerPage)
+{
+	<div pagination="@Model"></div>
+}

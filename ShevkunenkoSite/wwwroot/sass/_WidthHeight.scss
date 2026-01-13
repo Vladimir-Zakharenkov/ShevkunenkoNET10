@@ -1,0 +1,129 @@
+﻿.height400 {
+    height: 400px !important;
+}
+
+.height600 {
+    height: 600px;
+}
+
+.height850 {
+    position: relative;
+    height: 850px;
+}
+
+.height1000 {
+    height: 1000px;
+}
+
+@media screen {
+    .minheight900 {
+        min-height: 900px;
+    }
+}
+
+@media print {
+    .minheight900 {
+        min-height: 21cm;
+    }
+}
+
+.width12percent {
+    max-width: 12%;
+}
+
+.maxwidthcontent {
+    max-width: max-content;
+}
+
+.maxwidth28percent {
+    max-width: 28%;
+}
+
+.maxwidth50percent {
+    max-width: 50%;
+}
+
+.maxwidth80percent {
+    max-width: 80%;
+}
+
+.maxwidth90percent {
+    max-width: 90%;
+}
+
+.width70percent {
+    width: 70%;
+}
+
+.width50percent {
+    max-width: 50%;
+}
+
+.width30percent {
+    width: 30%;
+    min-width: 180px;
+}
+
+.minwidth30px {
+    min-width: 30px !important;
+}
+
+.width9percent {
+    min-width: 9% !important;
+}
+
+.minwidth40px {
+    min-width: 40px !important;
+}
+
+.minwidth50px {
+    min-width: 50px;
+}
+
+.minwidth60px {
+    min-width: 60px;
+}
+
+.minwidth100px {
+    min-width: 100px;
+}
+
+.minwidth300px {
+    min-width: 300px;
+}
+
+.maxwidth40px {
+    max-width: 40px !important;
+}
+
+.maxwidth60px {
+    max-width: 60px !important;
+}
+
+.maxwidth100px {
+    max-width: 100px;
+}
+
+.maxwidth200px {
+    max-width: 200px;
+}
+
+.maxwidth300px {
+    max-width: 300px;
+}
+
+.maxwidth600px {
+    max-width: 600px;
+}
+
+.maxwidth700px {
+    max-width: 700px;
+}
+
+.maxwidth800px {
+    max-width: 800px;
+}
+
+.maxwidth900px {
+    max-width: 900px;
+}

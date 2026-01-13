@@ -1,0 +1,2683 @@
+﻿@model PageInfoModel
+
+@{
+	int i = 0;
+	int innerAccordion = 0;
+	string cssForLabel = "col-form-label text-primary fs-5 me-2";
+}
+
+<h1 class="fs-3 text_shadow">Редактировать страницу</h1>
+
+<hr class="liniya" />
+
+@* Id страницы *@
+<div>
+
+	<label asp-for="PageInfoModelId" class="@cssForLabel"></label>
+
+	<p>
+		<span class="fs-5 text_shadow fluid-font-size">
+			@Model.PageInfoModelId
+		</span>
+		<br />
+		<span class="fs-6 form-text text-success">
+			идентификатор в базе данных (GUID)
+		</span>
+	</p>
+
+	<hr class="w-75 mx-auto" />
+
+</div>
+
+@* Карточка страницы и индкес сортировки *@
+<div>
+
+	<p>
+		<span class="fs-5 text-primary">
+			Карточка страницы
+		</span>
+	</p>
+
+	<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 justify-content-center">
+
+		<vc:card-of-page page=Model />
+
+	</div>
+
+	<p class="mt-2">
+
+		<label asp-for="SortOfPage" class="@cssForLabel"></label>
+
+		<span class="fs-4 text-danger">
+			@Model.SortOfPage
+		</span>
+
+	</p>
+
+</div>
+
+<div class="row">
+
+	@* Кадры слева *@
+	@if (Model.FramesAroundMainContent != null && Model.FramesAroundMainContent.FramesOnTheLeft != null)
+	{
+		<div class="col-2 mx-auto d-none d-lg-block overflow-y-auto overflow-x-hidden height850">
+
+			@foreach (var item in Model.FramesAroundMainContent.FramesOnTheLeft)
+			{
+				<a href="@item.ImagePath/@(string.IsNullOrEmpty(item.WebImageHDFileName) == false ? item.WebImageHDFileName : item.WebImageFileName)"
+				   class=""
+				   title="@item.ImageAltTitle"
+				   onclick="this.target='_blank'">
+
+					<vc:view-image image-id="@item.ImageFileModelId"
+								   css-class="my-2 w-100 shadw imageref"
+								   icon-type="webicon200" />
+
+				</a>
+			}
+
+		</div>
+	}
+	else
+	{
+		<div class="col-2 d-none d-lg-block"></div>
+	}
+
+
+	@* Форма ввода данных *@
+	<div class="col-12 col-lg-8 mx-auto p-2">
+
+		<form asp-area="Admin"
+			  asp-controller="PageInfo"
+			  asp-action="EditPage"
+			  method="post"
+			  enctype="multipart/form-data">
+
+			@* скрытые  поля *@
+			<div>
+
+				<input asp-for="PageInfoModelId" type="hidden" />
+				<input asp-for="PageIconPath" type="hidden" />
+				<input asp-for="BrowserConfig" type="hidden" />
+				<input asp-for="BrowserConfigFolder" type="hidden" />
+				<input asp-for="Manifest" type="hidden" />
+
+			</div>
+
+			@* все ошибки ввода данных *@
+			@if (Context.Request.Method == "POST")
+			{
+				<div asp-validation-summary="All" class="text-danger border border-top-0 border-danger mb-3"></div>
+			}
+
+			@* данные по группам *@
+			<div id="accordionEditPage" class="accordion">
+
+				@* выбор MVC или RazorPages *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Выбор MVC или RazorPages» *@
+					<h2 id="headingMVCorRazorPages" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#MVCorRazorPages"
+								aria-expanded="true"
+								aria-controls="MVCorRazorPages">
+
+							<span class="form-label fs-5">Выбор фреймворка :</span>
+
+						</button>
+
+					</h2>
+
+					@* выбрать фреймворк *@
+					<div id="MVCorRazorPages"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingMVCorRazorPages"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							<div class="justify-content-center text-center" aria-describedby="MVCorRazorPagesHelpBlock">
+
+								<label asp-for="PageAsRazorPage" class="@cssForLabel col-12"></label>
+
+								<div class="form-check-inline">
+
+									<input asp-for="PageAsRazorPage" type="radio" value="false" id="inlineRadio1" class="form-check-input d-inline-block mt-2 me-2">
+
+									<label asp-for="PageAsRazorPage" class="form-check-label fs-5 d-inline-block align-top">MVC</label>
+
+								</div>
+
+								<div class="form-check-inline">
+
+									<input asp-for="PageAsRazorPage" type="radio" value="true" id="inlineRadio2" class="form-check-input d-inline-block mt-2 me-2">
+
+									<label asp-for="PageAsRazorPage" class="form-check-label fs-5 d-inline-block align-top">RazorPages</label>
+
+								</div>
+
+								<div id="MVCorRazorPagesHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">
+										выбрать тип фреймворка
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PageAsRazorPage" class="text-danger"></span>
+								}
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* картинка для страницы *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Картинка для страницы» *@
+					<h2 id="headingImageForPage" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#ImageForPage"
+								aria-expanded="true"
+								aria-controls="ImageForPage">
+
+							<span class="form-label fs-5">Картинка для страницы :</span>
+
+						</button>
+
+					</h2>
+
+					@* выбрать картинку *@
+					<div id="ImageForPage"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingImageForPage"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							<div>
+
+								<label asp-for="ImageFileFormFile" class="@cssForLabel"></label>
+
+								@if (Context.Request.Method == "GET")
+								{
+									@if (Model.ImageFileModel != null)
+									{
+										<a asp-area="Admin"
+										   asp-controller="ImageInfo"
+										   asp-action="DetailsImage"
+										   asp-route-imageid="@Model.ImageFileModelId"
+										   class="d-block mx-auto maxwidth300px shadw imageref"
+										   title="информация о картинке"
+										   onclick="this.target='_blank'">
+
+											<vc:view-image image-id="@Model.ImageFileModelId" css-class="w-100" icon-type="webimage" />
+
+										</a>
+
+										@if (!string.IsNullOrEmpty(Model.ImageFileModel.WebImageFileName))
+										{
+											<p class="text_shadow my-2 fluid-font-size">
+												@Model.ImageFileModel.ImagePath/@Model.ImageFileModel.WebImageFileName
+											</p>
+										}
+										else
+										{
+											<p class="text_shadow my-2 fluid-font-size">
+												@Model.ImageFileModel.ImagePath/@Model.ImageFileModel.ImageFileName
+											</p>
+										}
+									}
+									else
+									{
+										<p class="fs-6 form-text text-success">
+											картинка для страницы не выбрана
+										</p>
+									}
+								}
+
+								<hr class="w-50 mx-auto" />
+
+								<input asp-for="ImageFileFormFile"
+									   id="ImageFormFileInput"
+									   class="form-control mt-2 w-50 mx-auto"
+									   aria-describedby="ImageFormFileInputHelpBlock" />
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="ImageFileFormFile" class="text-danger"></span>
+								}
+
+								<div id="ImageFormFileInputHelpBlock" class="form-text mt-3">
+
+									<span class="fs-6 text-success">
+										выбрать файл картинки
+									</span>
+
+								</div>
+
+								<hr class="w-50 mx-auto" />
+
+								<select asp-for="ImageFileModelId"
+										asp-items="ViewBag.ImageFIles"
+										class="d-flex col-12 col-sm-7 col-lg-6 mx-auto my-3"
+										aria-describedby="ImageFormFileInputHelpBlock">
+
+									<option value="@Guid.Empty">Картинка не выбрана</option>
+
+								</select>
+
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="ImageFileModelId" class="text-danger"></span>
+								}
+
+								<div class="form-text">
+
+									<span class="fs-6 text-success">
+										выбрать картинку
+									</span>
+
+								</div>
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* текст для страницы *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Текст для страницы» *@
+					<h2 id="headingTextForPage" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#TextForPage"
+								aria-expanded="true"
+								aria-controls="TextForPage">
+
+							<span class="form-label fs-5">Текст для страницы :</span>
+
+						</button>
+
+					</h2>
+
+					@* выбрать файл текста *@
+					<div id="TextForPage"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingTextForPage"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							<div>
+
+								<label asp-for="TextFileFormFile" class="@cssForLabel"></label>
+
+								@if (Context.Request.Method == "GET")
+								{
+									@if (Model.TextInfo != null)
+									{
+										<a asp-area="Admin"
+										   asp-controller="TextInfo"
+										   asp-action="DetailsText"
+										   asp-route-textId="@Model.TextInfoId"
+										   class="d-block mx-auto maxwidth300px shadw imageref"
+										   title="информация о файле текста"
+										   onclick="this.target='_blank'">
+
+											<label asp-for="@Model.TextInfo.FolderForText" class="@cssForLabel"></label>
+
+											<p class="text_shadow text-indent-0 text-center fs-5">
+												@DataConfig.TextsFolderPath.Replace('\\', '/')@Model.TextInfo.FolderForText
+											</p>
+
+											<hr class="w-25 mx-auto" />
+
+											<span class="text_shadow my-2 fluid-font-size">
+												@Model.TextInfo.TxtFileName
+											</span>
+
+											<span class="text_shadow my-2 fluid-font-size">
+												@Model.TextInfo.HtmlFileName
+											</span>
+
+										</a>
+									}
+									else
+									{
+										<p class="text-center fluid-font-size text-bg-danger">
+											файл текста для страницы не задан
+										</p>
+									}
+								}
+
+								<hr class="w-50 mx-auto" />
+
+								<input asp-for="TextFileFormFile"
+									   id="TextFormFileInput"
+									   class="form-control mt-2 w-50 mx-auto"
+									   aria-describedby="TextFormFileInputHelpBlock" />
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="TextFileFormFile" class="text-danger"></span>
+								}
+
+								<div id="TextFormFileInputHelpBlock" class="form-text mt-3">
+
+									<span class="fs-6 text-success">
+										выбрать файл текста
+									</span>
+
+								</div>
+
+								<hr class="w-50 mx-auto" />
+
+								<select asp-for="TextInfoId"
+										asp-items="ViewBag.Texts"
+										class="d-flex col-12 col-sm-7 col-lg-6 mx-auto my-3"
+										aria-describedby="TextFormFileInputHelpBlock">
+
+									<option value="@Guid.Empty">Текст не выбран</option>
+
+								</select>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="TextInfoId" class="text-danger"></span>
+								}
+
+								<div class="form-text">
+
+									<span class="fs-6 text-success">
+										выбрать файл текста
+									</span>
+
+								</div>
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* фон для страницы (фотопленка) *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Фон для для страницы (фотопленка)» *@
+					<h2 id="headingBackgroundForPage" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#BackgroundForPage"
+								aria-expanded="true"
+								aria-controls="BackgroundForPage">
+
+							<span class="form-label fs-5">Фон для страницы :</span>
+
+						</button>
+
+					</h2>
+
+					@* выбрать фон*@
+					<div id="BackgroundForPage"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingBackgroundForPage"
+						 data-bs-parent="#accordionAddPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							<div>
+
+								<label asp-for="BackgroundFormFile" class="@cssForLabel"></label>
+
+								<input asp-for="BackgroundFormFile"
+									   id="BackgroundFormFileInput"
+									   class="form-control mt-2 w-50 mx-auto"
+									   aria-describedby="BackgroundFormFileInputHelpBlock" />
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="BackgroundFormFile" class="text-danger"></span>
+								}
+
+								<div id="BackgroundFormFileInputHelpBlock" class="form-text mt-3">
+
+									<span class="fs-6 text-success">
+										выбрать файл фона
+									</span>
+
+								</div>
+
+								<hr class="w-50 mx-auto" />
+
+								<select asp-for="BackgroundFileModelId"
+										asp-items="ViewBag.BackgroundImages"
+										class="d-flex col-12 col-sm-7 col-lg-6 mx-auto my-3"
+										aria-describedby="BackgroundFormFileInputHelpBlock">
+
+									<option value="@Guid.Empty" selected>Фон не выбран</option>
+
+								</select>
+
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="BackgroundFileModelId" class="text-danger"></span>
+								}
+
+								<div class="form-text">
+
+									<span class="fs-6 text-success">
+										выбрать фон
+									</span>
+
+								</div>
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* аудиофайл для страницы *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Аудиофайл для страницы» *@
+					<h2 id="headingAudioForPage" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#AudioForPage"
+								aria-expanded="true"
+								aria-controls="AudioForPage">
+
+							<span class="form-label fs-5">Аудиофайл страницы :</span>
+
+						</button>
+
+					</h2>
+
+					@* выбрать аудиофайл*@
+					<div id="AudioForPage"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingAudioForPage"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							@if (Model.AudioInfoId != null && Model.AudioInfo != null)
+							{
+								@if (string.IsNullOrEmpty(Model.AudioInfo.PlayerPodsterFm))
+								{
+									<p class="text_shadow fs-4 mt-2">плейер для аудиофайла не задан</p>
+								}
+								else
+								{
+									<div class="d-none d-sm-flex my-2">
+
+										@Html.Raw(Model.AudioInfo.PlayerPodsterFm)
+
+									</div>
+
+									<p class="d-block d-sm-none fs-6 text-success mt-2">
+										<span class="d-inline-block">для просмотра плейера</span>
+										<span class="d-inline-block">мин. разрешение 576px</span>
+									</p>
+
+									<p class="fs-5 text-bg-success">Папка : @Model.AudioInfo.FolderForAudioFile</p>
+									<p class="fs-5 text-bg-success">Файл :@Model.AudioInfo.AudioFileName</p>
+								}
+							}
+							else
+							{
+								<p class="fs-5 text-bg-success">аудиофайл не выбран</p>
+							}
+
+							<hr class="w-50 mx-auto" />
+
+							<div>
+
+								<label asp-for="AudioInfoFormFile" class="@cssForLabel"></label>
+
+								<input asp-for="AudioInfoFormFile"
+									   id="BackgroundFormFileInput"
+									   class="form-control mt-2 w-50 mx-auto"
+									   aria-describedby="AudioInfoFormFileInputHelpBlock" />
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="AudioInfoFormFile" class="text-danger"></span>
+								}
+
+								<div id="AudioInfoFormFileInputHelpBlock" class="form-text mt-3">
+
+									<span class="fs-6 text-success">
+										выбрать аудиофайл
+									</span>
+
+								</div>
+
+								<hr class="w-50 mx-auto" />
+
+								<select asp-for="AudioInfoId"
+										asp-items="ViewBag.AudioFiles"
+										class="d-flex col-12 col-sm-7 col-lg-6 mx-auto my-3"
+										aria-describedby="AudioInfoFormFileInputHelpBlock">
+
+									<option value="@Guid.Empty">Аудиофайл не выбран</option>
+
+								</select>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="AudioInfoId" class="text-danger"></span>
+								}
+
+								<div class="form-text">
+
+									<span class="fs-6 text-success">
+										выбрать аудиофайл
+									</span>
+
+								</div>
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* текст карточки страницы *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Текст карточки страницы» *@
+					<h2 id="headingTextForCardPage" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#TextForCardPage"
+								aria-expanded="true"
+								aria-controls="TextForCardPage">
+
+							<span class="form-label fs-5">Текст карточки страницы :</span>
+
+						</button>
+
+					</h2>
+
+					@* текст карточки страницы *@
+					<div id="TextForCardPage"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingTextForCardPage"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 justify-content-center">
+
+								<vc:card-of-page page=Model />
+
+							</div>
+
+							@if (string.IsNullOrEmpty(Model.PageCardText))
+							{
+								<p class="text-bg-danger mt-5 fs-5 w-75 mx-auto">текст не задан</p>
+							}
+							else
+							{
+								<p class="text-bg-primary mt-3 fs-5 w-75 mx-auto">Текст карточки : @Model.PageCardText</p>
+							}
+
+							<hr class="w-50 mx-auto" />
+
+							<div>
+
+								<label asp-for="PageCardText" class="@cssForLabel"></label>
+
+								<input asp-for="PageCardText" id="PageCardTextInput" class="col-11 col-sm-7 col-lg-6" aria-describedby="PageCardTextInputHelpBlock" />
+
+								<div id="PageCardTextInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">
+										текст карточки страницы
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PageCardText" class="text-danger"></span>
+								}
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* индекс сортировки страницы *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Индекс сортировки страницы» *@
+					<h2 id="headingIndexOfSorting" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#IndexOfSorting"
+								aria-expanded="true"
+								aria-controls="IndexOfSorting">
+
+							<span class="form-label fs-5">Индекс сортировки :</span>
+
+						</button>
+
+					</h2>
+
+					@* индекс сортировки страницы *@
+					<div id="IndexOfSorting"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingIndexOfSorting"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							<div class="row g-2 justify-content-center mb-2">
+
+								<div class="col-auto">
+									<label asp-for="SortOfPage" class="@cssForLabel"></label>
+								</div>
+
+								<div class="col-5 col-sm-3">
+									<input asp-for="SortOfPage"
+										   id="SortOfPageInput"
+										   class="form-control text-center"
+										   aria-describedby="SortOfPageInputHelpBlock" />
+								</div>
+
+								<div id="SortOfPageInputHelpBlock" class="form-text">
+									<span class="fs-6 text-success">
+										порядок сортировки -
+									</span>
+									<br class="d-inline-block d-md-none" />
+									<span class="fs-6 text-danger">
+										обязательное поле
+									</span>
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="SortOfPage" class="text-danger"></span>
+								}
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* адрес и псевдонимы  страницы  *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Адрес и псевдонимы  страницы» *@
+					<h2 id="headingPageAdress" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#PageAdress"
+								aria-expanded="true"
+								aria-controls="PageAdress">
+
+							<span class="form-label fs-5">Адрес и псевдонимы :</span>
+
+						</button>
+
+					</h2>
+
+					@* адрес и псевдонимы *@
+					<div id="PageAdress"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingPageAdress"
+						 data-bs-parent="#accordionAddPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							@* Выбор области Area *@
+							<div class="row g-2 justify-content-center">
+
+								<label asp-for="PageArea" class="@cssForLabel col-auto"></label>
+
+								<div class="col-auto" aria-describedby="PageAreaInputHelpBlock">
+
+									<select asp-for="PageArea" id="AreaInput" class="form-select">
+
+										@for (int i = 0; i < Model.AreaItems.Count(); i++)
+										{
+											<option value="@Model.AreaItems[i]">@Model.AreaItems[i]</option>
+										}
+
+									</select>
+
+								</div>
+
+								<div id="PageAreaInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">
+										область «Area»
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PageArea" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+							@* Выбор контроллера *@
+							<div>
+
+								<label asp-for="Controller" class="@cssForLabel"></label>
+
+								<input asp-for="Controller" id="ControllerInput" class="text-center col-11 col-lg-6" aria-describedby="ControllerInputHelpBlock" />
+
+								<div id="ControllerInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">
+										Controller для страницы MVC
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="Controller" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+							@* Выбор действия *@
+							<div>
+
+								<label asp-for="Action" class="@cssForLabel"></label>
+
+								<input asp-for="Action" id="ActionInput" class="text-center col-11 col-lg-6" aria-describedby="ActionInputHelpBlock" />
+
+								<div id="ActionInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">
+										Action для страницы MVC
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="Action" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+							@* Данные адреса *@
+							<div>
+
+								<label asp-for="RoutData" class="@cssForLabel"></label>
+
+								<input asp-for="RoutData" id="RoutDataInput" class="col-11 text-start" aria-describedby="RoutDataInputHelpBlock" />
+
+								<div id="ActionInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">
+										Данные запроса (QweryString)
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="RoutData" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+							@* Адрес для RazorPage *@
+							<div>
+
+								<label asp-for="PageLoc" class="@cssForLabel"></label>
+
+								<input asp-for="PageLoc" id="PageLocInput" class="col-11 text-start" aria-describedby="PageLocInputHelpBlock" />
+
+								<div id="PageLocInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-danger">
+										указывать только для RazorPages
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PageLoc" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+							@* Псевдоним адреса (1) *@
+							<div>
+
+								<label asp-for="PagePathNickName" class="@cssForLabel"></label>
+
+								<input asp-for="PagePathNickName" id="PagePathNickNameInput" class="col-11 text-start" aria-describedby="PagePathNickNameInputHelpBlock" />
+
+								<div id="PagePathNickNameInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">
+										псевдоним страницы (1)
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PagePathNickName" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+							@* Псевдоним адреса (2) *@
+							<div>
+
+								<label asp-for="PagePathNickName2" class="@cssForLabel"></label>
+
+								<input asp-for="PagePathNickName2" id="PagePathNickName2Input" class="col-11 text-start" aria-describedby="PagePathNickName2InputHelpBlock" />
+
+								<div id="PagePathNickName2InputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">
+										псевдоним страницы (2)
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PagePathNickName2" class="text-danger"></span>
+								}
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* Title-Description-KeyWords  *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Title-Description-KeyWords» *@
+					<h2 id="headingTitleDescriptionKeyWords" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#TitleDescriptionKeyWords"
+								aria-expanded="true"
+								aria-controls="TitleDescriptionKeyWords">
+
+							<span class="form-label fs-5">Title-Description-KeyWord :</span>
+
+						</button>
+
+					</h2>
+
+					@* Title-Description-KeyWords *@
+					<div id="TitleDescriptionKeyWords"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingTitleDescriptionKeyWords"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							@* Тег «title» *@
+							<div>
+
+								<label asp-for="PageTitle" class="@cssForLabel"></label>
+
+								<input asp-for="PageTitle" id="PageTitleInput" class="col-11 text-start" aria-describedby="PageTitleInputHelpBlock" />
+
+								<div id="PageTitleInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">тег «title»</span>
+									<span class="fs-6 text-danger"> - обязательное поле</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PageTitle" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+							@* Тег «description» *@
+							<div class="col-11 mx-auto">
+
+								<label asp-for="PageDescription" class="@cssForLabel"></label>
+
+								<textarea asp-for="PageDescription"
+										  id="PageDescriptionInput"
+										  class="form-control fordetails col-11 border border-1 border-black text-start"
+										  rows="5"
+										  aria-describedby="PageDescriptionInputHelpBlock">
+								</textarea>
+
+								<div id="PageDescriptionInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">тег «description» - </span>
+									<br class="d-sm-none" />
+									<span class="fs-6 text-danger">обязательное поле</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PageDescription" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+							@* Тег «keywords» *@
+							<div class="col-11 mx-auto">
+
+								<label asp-for="PageKeyWords" class="@cssForLabel"></label>
+
+								<textarea asp-for="PageKeyWords"
+										  id="PageKeyWordsInput"
+										  class="form-control fordetails col-11 border border-1 border-black text-start"
+										  rows="5"
+										  aria-describedby="PageKeyWordsInputHelpBlock">
+								</textarea>
+
+								<div id="PageKeyWordsInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">тег «keywords» - </span>
+									<br class="d-sm-none" />
+									<span class="fs-6 text-danger">обязательное поле</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PageKeyWords" class="text-danger"></span>
+								}
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* Open Graph тег OgType *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Open Graph тег OgType» *@
+					<h2 id="headingOpenGraph" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#OpenGraph"
+								aria-expanded="true"
+								aria-controls="OpenGraph">
+
+							<span class="form-label fs-5">Open Graph (тег OgType) :</span>
+
+						</button>
+
+					</h2>
+
+					@* Open Graph тег OgType *@
+					<div id="OpenGraph"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingOpenGraph"
+						 data-bs-parent="#accordionAddPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							@* Выбор  og:type *@
+							<div class="row g-2 justify-content-center">
+
+								<label asp-for="OgType" class="@cssForLabel col-auto"></label>
+
+								<div class="col-auto" aria-describedby="OgTypeInputHelpBlock">
+
+									<select asp-for="OgType" id="OgTypeInput" class="form-select">
+
+										@for (int i = 0; i < Model.OgTypeItems.Count(); i++)
+										{
+											<option value="@Model.OgTypeItems[i]">@Model.OgTypeItems[i]</option>
+										}
+
+									</select>
+
+								</div>
+
+								<div id="OgTypeInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">тэг «og:type» - </span>
+									<span class="fs-6 text-danger">обязательное поле</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="OgType" class="text-danger"></span>
+								}
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* Иконка страницы *@
+				<div class="accordion-item mb-3 shadw">
+
+					<h2 id="headingPageIcon" class="accordion-header shadw">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#PageIcon"
+								aria-expanded="true"
+								aria-controls="PageIcon">
+
+							<span class="form-label fs-5">Иконка страницы :</span>
+
+						</button>
+
+					</h2>
+
+					<div id="PageIcon"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingPageIcon"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							@if (Context.Request.Method == "GET" && Model.IconItem != null)
+							{
+								<img itemprop="image"
+									 class="card-img-top m-2 width30percent maxwidth300px shadw mx-auto"
+									 src="@DataConfig.IconsFolder/@Model.IconItem.IconPath/@Model.IconItem.IconFileName"
+									 alt="иконка страницы"
+									 title="иконка страницы" />
+
+								<p class="text_shadow my-2 fluid-font-size">
+									@DataConfig.IconsFolder@Model.IconItem.IconPath@Model.IconItem.IconFileName
+								</p>
+							}
+
+							<p class="fs-6 form-text text-success">
+								выбор иконки связан с OgType
+							</p>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* Инфо для Sitemap *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «инфо для Sitemap» *@
+					<h2 id="headingSitemapInfo" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#SitemapInfo"
+								aria-expanded="true"
+								aria-controls="SitemapInfo">
+
+							<span class="form-label fs-5">Инфо для Sitemap :</span>
+
+						</button>
+
+					</h2>
+
+					@* инфо для Sitemap *@
+					<div id="SitemapInfo"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingSitemapInfo"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							@* Частота изменения страницы *@
+							<div class="row g-2 justify-content-center">
+
+								<label asp-for="Changefreq" class="@cssForLabel col-auto"></label>
+
+								<div class="col-auto" aria-describedby="ChangefreqInputHelpBlock">
+
+									<select asp-for="Changefreq" id="ChangefreqInput" class="form-select">
+
+										<option value="always">always</option>
+										<option value="hourly">hourly</option>
+										<option value="daily">daily</option>
+										<option value="weekly">weekly</option>
+										<option value="monthly">monthly</option>
+										<option value="yearly">yearly</option>
+										<option value="never">never</option>
+
+									</select>
+
+								</div>
+
+								<div id="ChangefreqInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">Changefreq: частота изменения</span>
+									<br class="d-md-none" />
+									<span class="fs-6 text-danger"> - обязательное поле</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="Changefreq" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+							@* Приоритет страницы *@
+							<div class="row g-2 justify-content-center">
+
+								<label asp-for="Priority" class="@cssForLabel col-auto"></label>
+
+								<div class="col-auto" aria-describedby="PrioritylInputHelpBlock">
+
+									<select asp-for="Priority" id="PriorityInput" class="form-select">
+
+										<option value="0.0">0.0</option>
+										<option value="0.1">0.1</option>
+										<option value="0.2">0.2</option>
+										<option value="0.3">0.3</option>
+										<option value="0.4">0.4</option>
+										<option value="0.5">0.5</option>
+										<option value="0.6">0.6</option>
+										<option value="0.7">0.7</option>
+										<option value="0.8">0.8</option>
+										<option value="0.9">0.9</option>
+										<option value="1.0">1.0</option>
+
+									</select>
+
+								</div>
+
+								<div id="PrioritylInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">Priority: значимость (от 0.0 до 1.0)</span>
+									<br class="d-md-none" />
+									<span class="fs-6 text-danger"> - обязательное поле</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="Priority" class="text-danger"></span>
+								}
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* Содержание страницы (заголовок, картинка под заголовком, текст) *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «содержание страницы» *@
+					<h2 id="headingPageContent" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#PageContent"
+								aria-expanded="true"
+								aria-controls="PageContent">
+
+							<span class="form-label fs-5">Содержание страницы :</span>
+
+						</button>
+
+					</h2>
+
+					@* содержание страницы *@
+					<div id="PageContent"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingPageContent"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							@* Текст заголовка в теге <h1> ... </h1> *@
+							<div>
+
+								<label asp-for="PageHeading" class="@cssForLabel"></label>
+
+								<input asp-for="PageHeading" id="PageHeadingInput" class="col-11 text-start" aria-describedby="PageHeadingInputHelpBlock" />
+
+								<div id="PageHeadingInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">текст заголовка страницы</span>
+									<br class="d-md-none" />
+									<span class="fs-6 text-success"> в теге &lt;h1&gt;... &lt;/h1&gt;</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PageHeading" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+							@* Картинка под заголовком страницы *@
+							<div>
+
+								<label asp-for="ImagePageHeadingFormFile" class="@cssForLabel"></label>
+
+								<input asp-for="ImagePageHeadingFormFile"
+									   id="ImageFormFileInput"
+									   class="form-control mt-2 w-50 mx-auto"
+									   aria-describedby="ImagePageHeadingFormFileInputHelpBlock" />
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="ImagePageHeadingFormFile" class="text-danger"></span>
+								}
+
+								<div id="ImagePageHeadingFormFileInputHelpBlock" class="form-text mt-3">
+
+									<span class="fs-6 text-success">
+										выбрать файл картинки
+									</span>
+
+								</div>
+
+								<hr class="w-50 mx-auto" />
+
+								<select asp-for="ImagePageHeadingId"
+										asp-items="ViewBag.ImageFIles"
+										class="d-flex col-12 col-sm-7 col-lg-6 mx-auto my-3"
+										aria-describedby="ImageFormFileInputHelpBlock">
+
+									<option value="@Guid.Empty">Картинка не выбрана</option>
+
+								</select>
+
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="ImagePageHeadingId" class="text-danger"></span>
+								}
+
+								<div class="form-text">
+
+									<span class="fs-6 text-success">
+										выбрать картинку
+									</span>
+
+								</div>
+
+							</div>
+
+							@* Текст страницы в теге <article> ... </article> *@
+							<div>
+
+								<label asp-for="TextOfPage" class="@cssForLabel"></label>
+
+								<textarea asp-for="TextOfPage"
+										  id="TextOfPageInput"
+										  class="form-control text-start fordetails px-3 border border-1 border-black"
+										  rows="15"
+										  aria-describedby="TextOfPageInputHelpBlock">
+								</textarea>
+
+								<div id="TextOfPageInputHelpBlock" class="form-text fs-6 text-success">
+
+									<span>текст страницы</span>
+									<br class="d-md-none" />
+									<span> в теге &lt;article&gt; ... &lt;/article&gt;</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="TextOfPage" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* фильтры поиска текущей страницы *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Фильтры поиска текущей страницы» *@
+					<h2 id="headingSearchCurrentPage" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#SearchCurrentPage"
+								aria-expanded="true"
+								aria-controls="SearchCurrentPage">
+
+							<span class="form-label fs-5">Фильтры для <span class="d-none d-sm-inline">поиска текущей</span> страницы :</span>
+
+						</button>
+
+					</h2>
+
+					@* фильтры поиска текущей страницы *@
+					<div id="SearchCurrentPage"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingSearchCurrentPage"
+						 data-bs-parent="#accordionAddPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							<div>
+
+								<label asp-for="PageFilter" class="@cssForLabel"></label>
+
+								<textarea asp-for="PageFilter"
+										  id="PageDescriptionInput"
+										  class="form-control fordetails col-11 border border-1 border-black"
+										  rows="3"
+										  aria-describedby="PageFilterInputHelpBlock">
+								</textarea>
+
+								<div id="PageFilterInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">
+										фильтры текущей страницы
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PageFilter" class="text-danger"></span>
+								}
+
+							</div>
+
+							@* страницы ссылающиеся на текущую страницу *@
+							<div>
+
+								<h2 class="text_shadow my-3 text-center fluid-font-size">
+									Страницы, ссылающиеся на текущую
+								</h2>
+
+								@if (Model.DictionaryOfOutPages != null && Model.DictionaryOfOutPages.Count > 0)
+								{
+									<div id="accordionFiltersOfPage" class="accordion">
+
+										@foreach (var (caption, listOfPages) in Model.DictionaryOfOutPages)
+										{
+											if (listOfPages.Count > 0)
+											{
+												innerAccordion++;
+
+												<div class="accordion-item mb-2 shadw">
+
+													<h2 class="accordion-header">
+
+														<button class="accordion-button stranicy"
+																type="button"
+																data-bs-toggle="collapse"
+																data-bs-target="#collapseOne_@innerAccordion"
+																aria-expanded="true"
+																aria-controls="collapseOne_@innerAccordion">
+
+															<span class="fluid-font-size">
+																# @caption
+															</span>
+
+														</button>
+
+													</h2>
+
+													<div id="collapseOne_@innerAccordion"
+														 class="accordion-collapse collapse"
+														 data-bs-parent="#accordionFiltersOfPage">
+
+														<div class="accordion-body p-1">
+
+															<div class="row mt-1 justify-content-center g-1
+																																																																												            @(listOfPages.Count < 4 ? "row-cols-3" : "")
+																																																																												            @((listOfPages.Count % 4 == 0 || listOfPages.Count == 7) ? "row-cols-4" : "")
+																																																																												            @((listOfPages.Count > 4 & listOfPages.Count % 4 != 0 & listOfPages.Count != 7) ? "row-cols-3 row-cols-lg-4 row-cols-xxl-5" : "")">
+
+																@foreach (var item in listOfPages)
+																{
+																	<div class="col">
+
+																		<a asp-area="Admin"
+																		   asp-controller="PageInfo"
+																		   asp-action="DetailsPage"
+																		   asp-route-pageid="@item.PageInfoModelId"
+																		   class="d-block rounded-3 p-1 imageref"
+																		   onclick="this.target='_blank'"
+																		   title="данные о странице">
+
+																			<div class="card p-0 rounded-3 shadw" title="@item.PageTitle">
+
+																				<vc:view-image image-id="@item.ImageFileModelId"
+																							   css-class="d-flex card-img-top rounded-3 p-0"
+																							   icon-type="webicon300" />
+
+																				<div class="d-none d-sm-flex card-body p-1 justify-content-center">
+
+																					@if (!string.IsNullOrEmpty(@item.PageCardText))
+																					{
+																						<p class="card-text px-2 text-indent-0 arial fontadaptive shadw">
+																							@item.PageCardText
+																						</p>
+																					}
+																					else
+																					{
+																						<p class="card-text fs-6 px-2 text-indent-0 arial fontadaptive shadw">
+																							БЕЗ ТЕКСТА
+																						</p>
+																					}
+
+																				</div>
+
+																			</div>
+
+																		</a>
+
+																	</div>
+																}
+
+															</div>
+
+														</div>
+
+													</div>
+
+												</div>
+											}
+										}
+
+									</div>
+								}
+								else
+								{
+									<p class="fs-6 form-text text-success text-center">
+										фильтры поиска не заданы
+									</p>
+								}
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* поиск связанных страниц *@
+				<div class="accordion-item mb-3 mt-2 shadw">
+
+					@* заголовок группы «Поиск связанных страниц» *@
+					<h2 id="headingRelatedPages" class="accordion-header">
+
+						<button class="accordion-button collapsed py-0 stranicy"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#RelatedPages"
+								aria-expanded="true"
+								aria-controls="RelatedPages">
+
+							<span class="form-label fs-5">Поиск <span class="d-none d-sm-inline">связанных</span> страниц :</span>
+
+						</button>
+
+					</h2>
+
+					@* поиск связанных страниц *@
+					<div id="RelatedPages"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingSearchCurrentPage"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							@* Включить ссылки на страницы *@
+							<div class="row g-1 justify-content-center">
+
+								<label asp-for="PageLinksByFilters" class="@cssForLabel"></label>
+
+								<div class="col-auto me-3">
+
+									<input asp-for="PageLinksByFilters" type="radio" value="true"
+										   id="PageLinksByFiltersTrue"
+										   class="form-check-input float-none me-2">
+
+									<label class="form-check-label" for="PageLinksByFiltersTrue">
+										<span class="text-success">включить</span>
+									</label>
+
+								</div>
+
+								<div class="col-auto">
+
+									<input asp-for="PageLinksByFilters" type="radio" value="false"
+										   id="PageLinksByFiltersFalse"
+										   class="form-check-input float-none me-2">
+
+									<label class="form-check-label" for="PageLinksByFiltersFalse">
+										<span class="text-danger">выключить</span>
+									</label>
+
+								</div>
+
+								<div id="PageLinksByFiltersInputHelpBlock" class="form-text mt-3">
+
+									<span class="fs-6 text-success">
+										включить ссылки на страницы
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PageLinksByFilters" class="text-danger"></span>
+								}
+
+								<hr class="w-50 mx-auto" />
+
+							</div>
+
+							@* фильтры связанных страниц *@
+							<div>
+
+								<label asp-for="PageFilterOut" class="@cssForLabel"></label>
+
+								<textarea asp-for="PageFilterOut"
+										  id="PageFilterOuInput"
+										  class="form-control fordetails col-11 border border-1 border-black"
+										  rows="3"
+										  aria-describedby="PageFilterOutInputHelpBlock">
+									</textarea>
+
+								<div id="PageFilterOutInputHelpBlock" class="form-text">
+
+									<span class="fs-6 text-success">
+										фильтры связанных страниц
+									</span>
+
+								</div>
+
+								@if (Context.Request.Method == "POST")
+								{
+									<span asp-validation-for="PageFilterOut" class="text-danger"></span>
+								}
+
+							</div>
+
+							<div>
+
+								<h2 class="text_shadow my-3 text-center fluid-font-size">
+									Сылки на страницы
+								</h2>
+
+								@if (Model.DictionaryOfLinksByPageFilterOut != null && Model.DictionaryOfLinksByPageFilterOut.Count > 0)
+								{
+									<div id="accordionFiltersOfPage" class="accordion">
+
+										@foreach (var (caption, modelForPageLinks) in Model.DictionaryOfLinksByPageFilterOut)
+										{
+											innerAccordion++;
+
+											<div class="accordion-item mb-3 shadw">
+
+												@* Заголовок группы *@
+												<h2 id="headingFiltersOfPage" class="accordion-header shadw">
+
+													<button class="accordion-button collapsed py-0 stranicy"
+															type="button"
+															data-bs-toggle="collapse"
+															data-bs-target="#collapseOne_@innerAccordion"
+															aria-expanded="false"
+															aria-controls="collapseOne_@innerAccordion">
+
+														<span class="form-label fs-5">@caption :</span>
+
+													</button>
+
+												</h2>
+
+												<div id="collapseOne_@innerAccordion" class="accordion-collapse collapse" aria-labelledby="headingFiltersOfPage" data-bs-parent="#accordionFiltersOfPage">
+
+													<div class="accordion-body accordion-body-nointend text-center">
+
+														<div class="row mt-1 justify-content-center g-1
+																																																											@(modelForPageLinks.Count < 4 ? "row-cols-3" : "")
+																																																											@((modelForPageLinks.Count % 4 == 0 || modelForPageLinks.Count == 7) ? "row-cols-4" : "")
+																																																											@((modelForPageLinks.Count > 4 & modelForPageLinks.Count % 4 != 0 & modelForPageLinks.Count != 7) ? "row-cols-3 row-cols-lg-4 row-cols-xxl-5" : "")">
+
+															@foreach (var item in modelForPageLinks)
+															{
+																<div class="col">
+
+																	<a asp-area="Admin"
+																	   asp-controller="PageInfo"
+																	   asp-action="DetailsPage"
+																	   asp-route-pageid="@item.PageInfoModelId"
+																	   class="d-block rounded-3 p-1 imageref"
+																	   onclick="this.target='_blank'"
+																	   title="данные о странице">
+
+																		<div class="card p-0 rounded-3 shadw" title="@item.PageTitle">
+
+																			<vc:view-image image-id="@item.ImageFileModelId"
+																						   css-class="card-img-top rounded-3 p-0"
+																						   icon-type="webicon300" />
+
+
+																			<div class="d-none d-sm-flex card-body p-1 justify-content-center">
+
+																				@if (!string.IsNullOrEmpty(@item.PageCardText))
+																				{
+																					<p class="card-text px-2 text-indent-0 arial fontadaptive shadw">
+																						@item.PageCardText
+																					</p>
+																				}
+																				else
+																				{
+																					<p class="card-text px-2 fs-6 text-indent-0 arial fontadaptive shadw">
+																						БЕЗ ТЕКСТА
+																					</p>
+																				}
+
+																			</div>
+
+																		</div>
+
+																	</a>
+
+																</div>
+															}
+
+														</div>
+
+													</div>
+
+												</div>
+
+											</div>
+										}
+
+									</div>
+								}
+								else
+								{
+									<p class="fs-6 form-text text-success text-center">
+										<span class="d-sm-none">
+											фильтры не заданы
+										</span>
+										<span class="d-none d-sm-inline">
+											фильтры поиска не заданы
+										</span>
+									</p>
+								}
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* Ссылки на видео сайта*@
+				<div class="accordion-item mb-3 shadw">
+
+					<h2 id="headingPageVideoLinks" class="accordion-header shadw">
+
+						<button class="accordion-button collapsed py-0"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#PageVideoLinks"
+								aria-expanded="true" aria-controls="PageVideoLinks">
+
+							<span class="form-label fs-5">Ссылки на видео :</span>
+
+						</button>
+
+					</h2>
+
+					<div id="PageVideoLinks"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingPageVideoLinks"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							<div id="PageVideoLinks_accordion" class="accordion">
+
+								@* Включить поиск связанных видео *@
+								<div class="accordion-item mb-3 shadw">
+
+									<h2 id="headingSwitchPageVideoLinks" class="accordion-header shadw">
+
+										<button class="accordion-button collapsed py-0 stranicy"
+												type="button"
+												data-bs-toggle="collapse"
+												data-bs-target="#SwitchPageVideoLinks"
+												aria-expanded="true"
+												aria-controls="SwitchPageVideoLinks">
+
+											<span class="form-label fs-5"><span class="d-sm-none">On - Off</span><span class="d-none d-sm-inline">Показать - Скрыть</span> :</span>
+
+										</button>
+
+									</h2>
+
+									<div id="SwitchPageVideoLinks"
+										 class="accordion-collapse collapse"
+										 aria-labelledby="headingSwitchPageVideoLinks"
+										 data-bs-parent="#PageVideoLinks_accordion">
+
+										<div class="accordion-body accordion-body-nointend text-center">
+
+											<div class="fs-5 text-start text-sm-center">
+
+												<div class="ps-5 ps-sm-0">
+
+													<div class="form-check form-check-inline">
+														<input asp-for="VideoLinks" id="inlineRadio1" class="form-check-input" type="radio" value="true" autocomplete="off">
+														<label asp-for="VideoLinks" class="form-check-label">Показать</label>
+													</div>
+
+													<div class="form-check form-check-inline">
+														<input asp-for="VideoLinks" id="inlineRadio2" class="form-check-input" type="radio" value="false" autocomplete="off">
+														<label asp-for="VideoLinks" class="form-check-label">Скрыть</label>
+													</div>
+
+												</div>
+
+												<p class="fs-6 form-text text-success text-center">
+													ссылки на видео сайта
+												</p>
+
+												@if (Context.Request.Method == "POST")
+												{
+													<span asp-validation-for="VideoLinks" class="text-danger"></span>
+												}
+
+											</div>
+
+										</div>
+
+									</div>
+
+								</div>
+
+								@* Фильтры поиска связанных видео *@
+								<div class="accordion-item mb-3 shadw">
+
+									<h2 id="headingPageVideoFilterOut" class="accordion-header shadw">
+										<button class="accordion-button collapsed py-0 stranicy" type="button" data-bs-toggle="collapse" data-bs-target="#PageVideoFilterOut" aria-expanded="true" aria-controls="PageVideoFilterOut">
+											<span class="form-label fs-5"><span class="d-sm-none">Фильтры видео</span><span class="d-none d-sm-inline">Фильтры поиска видео</span> :</span>
+										</button>
+									</h2>
+
+									<div id="PageVideoFilterOut" class="accordion-collapse collapse" aria-labelledby="headingPageVideoFilterOut" data-bs-parent="#PageVideoLinks_accordion">
+
+										<div class="accordion-body accordion-body-nointend text-center">
+
+											<label asp-for="VideoFilterOut" class="@cssForLabel"></label>
+
+											<textarea asp-for="VideoFilterOut"
+													  id="PageVideoFilterOutt"
+													  rows="4"
+													  class="form-control fs-5 fordetails"
+													  aria-describedby="PageVideoFilterOutInputHelpBlock">
+	                                        </textarea>
+
+											@if (!string.IsNullOrEmpty(Model.VideoFilterOut))
+											{
+												string[] videoFilterOut = Model.VideoFilterOut.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+												@for (int sf = 0; sf < videoFilterOut.Count(); sf++)
+												{
+													<p class="text-start text_shadow fluid-font-size border-bottom pb-2">
+														# @videoFilterOut[sf]
+													</p>
+												}
+
+												<p class="fs-6 form-text text-success text-center">
+													<span class="d-sm-none">
+														фильтры поиска
+													</span>
+													<span class="d-none d-sm-inline">
+														фильтры поиска видео
+													</span>
+												</p>
+
+												<h2 class="text_shadow my-3 text-center fluid-font-size">
+													Видео по фильтрам
+												</h2>
+
+												@if (Model.DictionaryOfLinksByVideoFilterOut != null && Model.DictionaryOfLinksByVideoFilterOut.Count > 0)
+												{
+													<div id="accordionFiltersOfVideo" class="accordion">
+
+														@foreach (var (caption, modelForVideoLinks) in Model.DictionaryOfLinksByVideoFilterOut)
+														{
+															innerAccordion++;
+
+															<div class="accordion-item mb-3 shadw">
+
+																@* Заголовок группы *@
+																<h2 id="headingFiltersOfVideo" class="accordion-header shadw">
+																	<button class="accordion-button collapsed py-0 stranicy" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne_@innerAccordion" aria-expanded="false" aria-controls="collapseOne_@innerAccordion">
+																		<span class="form-label fs-5">@caption :</span>
+																	</button>
+																</h2>
+
+																<div id="collapseOne_@innerAccordion" class="accordion-collapse collapse" aria-labelledby="headingFiltersOfVideo" data-bs-parent="#accordionFiltersOfVideo">
+
+																	<div class="accordion-body accordion-body-nointend text-center">
+
+																		<vc:video-links movies-list="@modelForVideoLinks" link-to-info-about-movie="true" />
+
+																	</div>
+
+																</div>
+
+															</div>
+														}
+
+													</div>
+												}
+											}
+											else
+											{
+												<p class="fs-6 form-text text-success text-center">
+													<span class="d-sm-none">
+														фильтры не заданы
+													</span>
+													<span class="d-none d-sm-inline">
+														фильтры поиска не заданы
+													</span>
+												</p>
+											}
+
+											@if (Context.Request.Method == "POST")
+											{
+												<span asp-validation-for="VideoFilterOut" class="text-danger"></span>
+											}
+
+										</div>
+
+									</div>
+
+								</div>
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* Ссылки на страницы по GUID1*@
+				<div class="accordion-item mb-3 shadw">
+
+					<h2 id="headingLinksToPagesByGuid1" class="accordion-header shadw">
+
+						<button class="accordion-button collapsed py-0"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#LinksToPagesByGuid1"
+								aria-expanded="true"
+								aria-controls="LinksToPagesByGuid1">
+
+							<span class="form-label fs-5">Ссылки по GUID1 :</span>
+
+						</button>
+
+					</h2>
+
+					<div id="LinksToPagesByGuid1"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingLinksToPagesByGuid1"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							<div id="LinksToPagesByGuid1_accordion" class="accordion">
+
+								@* Включить ссылки по GUID1 *@
+								<div class="accordion-item mb-3 shadw">
+
+									<h2 id="headingSwitchLinksToPagesByGuid1" class="accordion-header shadw">
+
+										<button class="accordion-button collapsed py-0 stranicy"
+												type="button"
+												data-bs-toggle="collapse"
+												data-bs-target="#SwitchLinksToPagesByGuid1"
+												aria-expanded="true"
+												aria-controls="SwitchLinksToPagesByGuid1">
+
+											<span class="form-label fs-5"><span class="d-sm-none">On - Off</span><span class="d-none d-sm-inline">Показать - Скрыть</span> :</span>
+
+										</button>
+
+									</h2>
+
+									<div id="SwitchLinksToPagesByGuid1"
+										 class="accordion-collapse collapse"
+										 aria-labelledby="headingSwitchLinksToPagesByGuid1"
+										 data-bs-parent="#LinksToPagesByGuid1_accordion">
+
+										<div class="accordion-body accordion-body-nointend text-center">
+
+											<div class="fs-5 text-start text-sm-center">
+
+												<div class="ps-5 ps-sm-0">
+
+													<div class="form-check form-check-inline">
+														<input asp-for="PageLinks" id="inlineRadio3" class="form-check-input" type="radio" value="true" autocomplete="off">
+														<label asp-for="PageLinks" class="form-check-label">Показать</label>
+													</div>
+
+													<div class="form-check form-check-inline">
+														<input asp-for="PageLinks" id="inlineRadio4" class="form-check-input" type="radio" value="false" autocomplete="off">
+														<label asp-for="PageLinks" class="form-check-label">Скрыть</label>
+													</div>
+
+												</div>
+
+												<p class="fs-6 form-text text-success text-center">
+													ссылки по GUID1
+												</p>
+
+												@if (Context.Request.Method == "POST")
+												{
+													<span asp-validation-for="PageLinks" class="text-danger"></span>
+												}
+
+											</div>
+
+										</div>
+
+									</div>
+
+								</div>
+
+								@* Поиск связанных страниц по GUID (1) *@
+								<div class="accordion-item mb-3 shadw">
+
+									<h2 id="headingRefPages" class="accordion-header shadw">
+
+										<button class="accordion-button collapsed py-0 stranicy"
+												type="button"
+												data-bs-toggle="collapse"
+												data-bs-target="#RefPages"
+												aria-expanded="true"
+												aria-controls="RefPages">
+
+											<span class="form-label fs-5">Страницы по GUID1 :</span>
+
+										</button>
+
+									</h2>
+
+									<div id="RefPages"
+										 class="accordion-collapse collapse"
+										 aria-labelledby="headingRefPages"
+										 data-bs-parent="#LinksToPagesByGuid1_accordion">
+
+										<div class="accordion-body accordion-body-nointend text-center">
+
+											<label asp-for="RefPages" class="@cssForLabel"></label>
+
+											<textarea asp-for="RefPages"
+													  id="RefPagesInput"
+													  class="form-control fs-5 text-start fordetails"
+													  rows="3"
+													  aria-describedby="RefPagesInputHelpBlock">
+	                                        </textarea>
+
+											@if (Context.Request.Method == "POST")
+											{
+												<span asp-validation-for="RefPages" class="text-danger"></span>
+											}
+
+											@if (!string.IsNullOrEmpty(Model.RefPages))
+											{
+												@if (Model.LinksToPagesByGuid != null && Model.LinksToPagesByGuid.Count > 0)
+												{
+													@foreach (var item in Model.LinksToPagesByGuid)
+													{
+														if (i == 0)
+														{
+															i = 1;
+														}
+														else
+														{
+															i++;
+														}
+
+														<p class="fs-5 border-bottom py-2 fluid-font-size">
+															<span class="text-primary fw-bold fluid-font-size">
+																№@i
+															</span>
+															<br />
+															<span class="d-none d-sm-inline">
+																<span class="fw-bold fluid-font-size">
+																	GUID -
+																</span>
+																<br class="d-xl-none" />
+																<span class="text_shadow fluid-font-size">
+																	@item.PageInfoModelId
+																</span>
+															</span>
+															<br class="d-none d-sm-block" />
+															<span>
+																<span class="fw-bold fluid-font-size">
+																	Title -
+																</span>
+																<br class="d-xl-none" />
+																<span class="text_shadow fluid-font-size">
+																	@item.PageTitle
+																</span>
+															</span>
+														</p>
+													}
+
+													<div class="row row-cols-2 row-cols-lg-3 row-cols-xxl-4 g-sm-1 g-md-2 g-lg-3 gy-2 justify-content-center">
+
+														@foreach (var item in Model.LinksToPagesByGuid)
+														{
+															<div class="col p-1 p-lg-2">
+
+																<div class="card shadw rounded-3 cardborder" title="@item.PageTitle">
+
+																	<a asp-area="Admin"
+																	   asp-controller="PageInfo"
+																	   asp-action="DetailsPage"
+																	   asp-route-pageid="@item.PageInfoModelId"
+																	   class="rounded-3 p-0 p-md-1 shadw"
+																	   onclick="this.target='_blank'"
+																	   title="данные о странице">
+
+																		<vc:view-image image-id="@item.ImageFileModelId"
+																					   css-class="card-img-top shadw rounded-3"
+																					   icon-type="webicon300" />
+
+																		@if (!string.IsNullOrEmpty(@item.PageCardText))
+																		{
+																			<div class="d-none d-sm-block card-body rounded-2 p-0 mt-1 mt-md-2 shadw">
+
+																				<p class="card-title p-0 mb-0 fw-medium fluid-font-size text-center">@item.PageCardText</p>
+
+																			</div>
+																		}
+
+																	</a>
+
+																</div>
+
+															</div>
+														}
+
+													</div>
+												}
+											}
+											else
+											{
+												<p class="fs-6 form-text text-success text-center">
+													нет ссылок по GUID1
+												</p>
+											}
+
+										</div>
+
+									</div>
+
+								</div>
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* Ссылки на страницы по GUID2*@
+				<div class="accordion-item mb-3 shadw">
+
+					<h2 id="headingLinksToPagesByGuid2" class="accordion-header shadw">
+
+						<button class="accordion-button collapsed py-0"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#LinksToPagesByGuid2"
+								aria-expanded="true"
+								aria-controls="LinksToPagesByGuid2">
+
+							<span class="form-label fs-5">Ссылки по GUID2 :</span>
+
+						</button>
+
+					</h2>
+
+					<div id="LinksToPagesByGuid2"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingLinksToPagesByGuid2"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							<div id="LinksToPagesByGuid2_accordion" class="accordion">
+
+								@* Включить ссылки по GUID1 *@
+								<div class="accordion-item mb-3 shadw">
+
+									<h2 id="headingSwitchLinksToPagesByGuid2" class="accordion-header shadw">
+
+										<button class="accordion-button collapsed py-0 stranicy"
+												type="button"
+												data-bs-toggle="collapse"
+												data-bs-target="#SwitchLinksToPagesByGuid2"
+												aria-expanded="true"
+												aria-controls="SwitchLinksToPagesByGuid2">
+
+											<span class="form-label fs-5"><span class="d-sm-none">On - Off</span><span class="d-none d-sm-inline">Показать - Скрыть</span> :</span>
+
+										</button>
+
+									</h2>
+
+									<div id="SwitchLinksToPagesByGuid2"
+										 class="accordion-collapse collapse"
+										 aria-labelledby="headingSwitchLinksToPagesByGuid2"
+										 data-bs-parent="#LinksToPagesByGuid2_accordion">
+
+										<div class="accordion-body accordion-body-nointend text-center">
+
+											<div class="fs-5 text-start text-sm-center">
+
+												<div class="ps-5 ps-sm-0">
+
+													<div class="form-check form-check-inline">
+														<input asp-for="PageLinks2" id="inlineRadio3" class="form-check-input" type="radio" value="true" autocomplete="off">
+														<label asp-for="PageLinks2" class="form-check-label">Показать</label>
+													</div>
+
+													<div class="form-check form-check-inline">
+														<input asp-for="PageLinks2" id="inlineRadio4" class="form-check-input" type="radio" value="false" autocomplete="off">
+														<label asp-for="PageLinks2" class="form-check-label">Скрыть</label>
+													</div>
+
+												</div>
+
+												<p class="fs-6 form-text text-success text-center">
+													ссылки по GUID2
+												</p>
+
+												@if (Context.Request.Method == "POST")
+												{
+													<span asp-validation-for="PageLinks2" class="text-danger"></span>
+												}
+
+											</div>
+
+										</div>
+
+									</div>
+
+								</div>
+
+								@* Поиск связанных страниц по GUID (2) *@
+								<div class="accordion-item mb-3 shadw">
+
+									<h2 id="headingRefPages2" class="accordion-header shadw">
+
+										<button class="accordion-button collapsed py-0 stranicy"
+												type="button"
+												data-bs-toggle="collapse"
+												data-bs-target="#RefPages2"
+												aria-expanded="true"
+												aria-controls="RefPages2">
+
+											<span class="form-label fs-5">Страницы по GUID2:</span>
+
+										</button>
+
+									</h2>
+
+									<div id="RefPages2"
+										 class="accordion-collapse collapse"
+										 aria-labelledby="headingRefPages2"
+										 data-bs-parent="#LinksToPagesByGuid2_accordion">
+
+										<div class="accordion-body accordion-body-nointend text-center">
+
+											<label asp-for="RefPages2" class="@cssForLabel"></label>
+
+											<textarea asp-for="RefPages2"
+													  id="RefPagesInput2"
+													  rows="3"
+													  class="form-control fs-5 text-start fordetails"
+													  aria-describedby="RefPagesInputHelpBlock2">
+	                                        </textarea>
+
+											@if (Context.Request.Method == "POST")
+											{
+												<span asp-validation-for="RefPages" class="text-danger"></span>
+											}
+
+											@if (!string.IsNullOrEmpty(Model.RefPages2))
+											{
+												@if (Model.LinksToPagesByGuid2 != null && Model.LinksToPagesByGuid2.Count > 0)
+												{
+													@foreach (var item in Model.LinksToPagesByGuid2)
+													{
+														if (i == 0)
+														{
+															i = 1;
+														}
+														else
+														{
+															i++;
+														}
+
+														<p class="fs-5 border-bottom py-2 fluid-font-size">
+															<span class="text-primary fw-bold fluid-font-size">
+																№@i
+															</span>
+															<br />
+															<span class="d-none d-sm-inline">
+																<span class="fw-bold fluid-font-size">
+																	GUID -
+																</span>
+																<br class="d-xl-none" />
+																<span class="text_shadow fluid-font-size">
+																	@item.PageInfoModelId
+																</span>
+															</span>
+															<br class="d-none d-sm-block" />
+															<span>
+																<span class="fw-bold fluid-font-size">
+																	Title -
+																</span>
+																<br class="d-xl-none" />
+																<span class="text_shadow fluid-font-size">
+																	@item.PageTitle
+																</span>
+															</span>
+														</p>
+													}
+
+													<div class="row row-cols-2 row-cols-lg-3 row-cols-xxl-4 g-sm-1 g-md-2 g-lg-3 gy-2 justify-content-center">
+
+														@foreach (var item in Model.LinksToPagesByGuid2)
+														{
+															<div class="col p-1 p-lg-2">
+
+																<div class="card shadw rounded-3 cardborder" title="@item.PageTitle">
+
+																	<a asp-area="Admin"
+																	   asp-controller="PageInfo"
+																	   asp-action="DetailsPage"
+																	   asp-route-pageid="@item.PageInfoModelId"
+																	   class="rounded-3 p-0 p-md-1 shadw"
+																	   onclick="this.target='_blank'"
+																	   title="данные о странице">
+
+																		<vc:view-image image-id="@item.ImageFileModelId"
+																					   css-class="card-img-top shadw rounded-3"
+																					   icon-type="webicon300" />
+
+																		@if (!string.IsNullOrEmpty(@item.PageCardText))
+																		{
+																			<div class="d-none d-sm-block card-body rounded-2 p-0 mt-1 mt-md-2 shadw">
+
+																				<p class="card-title p-0 mb-0 fw-medium fluid-font-size text-center">@item.PageCardText</p>
+
+																			</div>
+																		}
+
+																	</a>
+
+																</div>
+
+															</div>
+														}
+
+													</div>
+												}
+											}
+											else
+											{
+												<p class="fs-6 form-text text-success text-center">
+													нет ссылок по GUID2
+												</p>
+											}
+
+										</div>
+
+									</div>
+
+								</div>
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+				@* Картинки*@
+				<div class="accordion-item mb-3 shadw">
+
+					<h2 id="headingPictures" class="accordion-header shadw">
+
+						<button class="accordion-button collapsed py-0"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#Pictures"
+								aria-expanded="true"
+								aria-controls="Pictures">
+
+							<span class="form-label fs-5">Картинки :</span>
+
+						</button>
+
+					</h2>
+
+					<div id="Pictures"
+						 class="accordion-collapse collapse"
+						 aria-labelledby="headingPictures"
+						 data-bs-parent="#accordionEditPage">
+
+						<div class="accordion-body accordion-body-nointend text-center">
+
+							<div id="Pictures_accordion" class="accordion">
+
+								@* Включить показ картинок *@
+								<div class="accordion-item mb-3 shadw">
+
+									<h2 id="headingSwitchPictures" class="accordion-header shadw">
+
+										<button class="accordion-button collapsed py-0 stranicy"
+												type="button"
+												data-bs-toggle="collapse"
+												data-bs-target="#SwitchPictures"
+												aria-expanded="true"
+												aria-controls="SwitchPictures">
+
+											<span class="form-label fs-5"><span class="d-sm-none">On - Off</span><span class="d-none d-sm-inline">Показать - Скрыть</span> :</span>
+
+										</button>
+
+									</h2>
+
+									<div id="SwitchPictures" class="accordion-collapse collapse" aria-labelledby="headingSwitchPictures" data-bs-parent="#Pictures_accordion">
+
+										<div class="accordion-body accordion-body-nointend text-center">
+
+											<div class="fs-5 text-start text-sm-center">
+
+												<div class="ps-5 ps-sm-0">
+
+													<div class="form-check form-check-inline">
+														<input asp-for="PhotoLinks" id="inlineRadio3" class="form-check-input" type="radio" value="true" autocomplete="off">
+														<label asp-for="PhotoLinks" class="form-check-label">Показать</label>
+													</div>
+
+													<div class="form-check form-check-inline">
+														<input asp-for="PhotoLinks" id="inlineRadio4" class="form-check-input" type="radio" value="false" autocomplete="off">
+														<label asp-for="PhotoLinks" class="form-check-label">Скрыть</label>
+													</div>
+
+												</div>
+
+												<p class="fs-6 form-text text-success text-center">
+													картинки
+												</p>
+
+												@if (Context.Request.Method == "POST")
+												{
+													<span asp-validation-for="PhotoLinks" class="text-danger"></span>
+												}
+
+											</div>
+
+										</div>
+
+									</div>
+
+								</div>
+
+								@* Список картинок *@
+								<div class="accordion-item mb-3 shadw">
+
+									<h2 id="headingListOfPictures" class="accordion-header shadw">
+
+										<button class="accordion-button collapsed py-0 stranicy"
+												type="button"
+												data-bs-toggle="collapse"
+												data-bs-target="#ListOfPictures"
+												aria-expanded="true"
+												aria-controls="ListOfPictures">
+
+											<span class="form-label fs-5">Картинки :</span>
+
+										</button>
+
+									</h2>
+
+									<div id="ListOfPictures"
+										 class="accordion-collapse collapse"
+										 aria-labelledby="headingListOfPictures"
+										 data-bs-parent="#Pictures_accordion">
+
+										<div class="accordion-body accordion-body-nointend text-center">
+
+											<label asp-for="PhotoFilterOut" class="@cssForLabel"></label>
+
+											<textarea asp-for="PhotoFilterOut"
+													  id="PhotoFilterInput"
+													  class="form-control text-start fordetails px-3"
+													  rows="4"
+													  aria-describedby="PhotoFilterInputHelpBlock">
+	                                        </textarea>
+
+											@if (Context.Request.Method == "POST")
+											{
+												<span asp-validation-for="PhotoFilterOut" class="text-danger"></span>
+											}
+
+											@if (!string.IsNullOrEmpty(Model.PhotoFilterOut))
+											{
+												string[] photoFilterOut = Model.PhotoFilterOut.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+												@for (int sf = 0; sf < photoFilterOut.Count(); sf++)
+												{
+													<p class="text-start text_shadow fluid-font-size border-bottom pb-2">
+														# @photoFilterOut[sf]
+													</p>
+												}
+
+												<p class="fs-6 form-text text-success text-center">
+													<span class="d-sm-none">
+														фильтры поиска
+													</span>
+													<span class="d-none d-sm-inline">
+														фильтры поиска картинок
+													</span>
+												</p>
+											}
+											else
+											{
+												<p class="fs-6 form-text text-success text-center">
+													нет фильтров картинок
+												</p>
+											}
+
+										</div>
+
+									</div>
+
+								</div>
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			</div>
+
+			@* Сохранить - Отменить *@
+			<div class="card-footer p-0">
+
+				<button type="submit"
+						class="btn btn-outline-success p-1 m-2 text-center shadw minwidth100px"
+						title="сохранить изменения">
+
+					Сохранить
+
+				</button>
+
+				<a asp-area="Admin"
+				   asp-controller="PageInfo"
+				   asp-action="Index"
+				   class="btn btn-outline-danger d-inline-block p-1 m-2 shadw minwidth100px"
+				   title="отменить">
+
+					Отмена
+
+				</a>
+
+			</div>
+
+		</form>
+
+	</div>
+
+	@* кадры справа *@
+	@if (Model.FramesAroundMainContent != null && Model.FramesAroundMainContent.FramesOnTheRight != null)
+	{
+		<div class="col-2 mx-auto d-none d-lg-block overflow-y-auto overflow-x-hidden hei height850">
+
+			@foreach (var item in Model.FramesAroundMainContent.FramesOnTheRight)
+			{
+				<a href="@item.ImagePath/@(string.IsNullOrEmpty(item.WebImageHDFileName) == false ? item.WebImageHDFileName : item.WebImageFileName)"
+				   class=""
+				   title="@item.ImageAltTitle"
+				   onclick="this.target='_blank'">
+
+					<vc:view-image image-id="@item.ImageFileModelId"
+								   css-class="my-2 w-100 shadw imageref"
+								   icon-type="webicon200" />
+
+				</a>
+			}
+
+		</div>
+	}
+	else
+	{
+		<div class="col-2 d-none d-lg-block"></div>
+	}
+
+
+</div>
