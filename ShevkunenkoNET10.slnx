@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Localcertificate/">
+    <File Path="Localcertificate/Localcertificate.ps1" />
+  </Folder>
   <Project Path="ShevkunenkoSite.Model/ShevkunenkoSite.Models.csproj" />
   <Project Path="ShevkunenkoSite.Services/ShevkunenkoSite.Services.csproj" />
   <Project Path="ShevkunenkoSite/ShevkunenkoSite.csproj" />
